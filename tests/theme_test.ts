@@ -106,6 +106,19 @@ Deno.test("theme emits bundled browser assets", async () => {
 
   const css = await readSiteText("assets/site.css");
   assertStringIncludes(css, ".VPNav");
+  const normalizedCss = css.replaceAll("\r\n", "\n");
+  assertStringIncludes(
+    normalizedCss,
+    ".VPHomeSection .items {\n  display: flex;",
+  );
+  assertStringIncludes(
+    normalizedCss,
+    ".VPHomeSection .item {\n  padding: 8px;",
+  );
+  assertStringIncludes(
+    normalizedCss,
+    "  .VPHomeSection .item {\n    width: 33.333333%;",
+  );
 });
 
 Deno.test("theme emits support outputs for search, llms, markdown mirrors, and legacy redirects", async () => {

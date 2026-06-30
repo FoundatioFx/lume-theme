@@ -2759,19 +2759,22 @@ html:not(.dark) .vp-doc .shiki span {
   margin-top: 24px;
 }
 .VPHomeSection .items {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 16px -8px -8px;
+}
+.VPHomeSection .item {
+  padding: 8px;
+  width: 100%;
 }
 @media (min-width: 640px) {
-  .VPHomeSection .items {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .VPHomeSection .item {
+    width: 50%;
   }
 }
 @media (min-width: 960px) {
-  .VPHomeSection .items {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .VPHomeSection .item {
+    width: 33.333333%;
   }
 }
 .VPFeature .link-text {
