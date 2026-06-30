@@ -1,0 +1,68 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Dependencies
+        shell: bash
+        run: |
+          lume_cli=$(deno eval "const config = JSON.parse(await Deno.readTextFile('docs/deno.json')); console.log(config.imports['lume/'] + 'cli.ts');")
+
+          for attempt in 1 2 3; do
+            if deno cache mod.ts tests/theme_test.ts && \
+              deno cache -c docs/deno.json "$lume_cli" docs/_config.ts; then
+              exit 0
+            fi
+            sleep $((attempt * 10))
+          done
+
+          deno cache mod.ts tests/theme_test.ts
+          deno cache -c docs/deno.json "$lume_cli" docs/_config.ts
+
+      - name: Build Docs
+        run: deno task -c docs/deno.json build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/_site
+
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

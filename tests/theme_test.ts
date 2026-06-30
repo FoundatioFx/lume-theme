@@ -57,7 +57,8 @@ Deno.test("dogfood docs render the home page through the theme", async () => {
   assertStringIncludes(html, "Foundatio Theme");
   assertStringIncludes(html, "VPHome");
   assertStringIncludes(html, "VPFeatures");
-  assertStringIncludes(html, "/theme/guide/getting-started");
+  assertStringIncludes(html, 'href="/guide/getting-started/"');
+  assertStringIncludes(html, "https://theme.foundatio.dev/");
 });
 
 Deno.test("dogfood docs render guide pages with sidebar, outline, and Shiki code", async () => {
@@ -88,6 +89,10 @@ Deno.test("theme emits support outputs for search, llms, markdown mirrors, and l
   await assertSiteFile("guide/getting-started.md");
   await assertSiteFile("guide/getting-started.html");
   await assertSiteFile("sitemap.xml");
+  await assertSiteFile("CNAME");
+
+  const cname = await readSiteText("CNAME");
+  assertStringIncludes(cname, "theme.foundatio.dev");
 
   const search = JSON.parse(await readSiteText("search-index.json"));
   assert(Array.isArray(search));

@@ -6,18 +6,20 @@ import metas from "lume/plugins/metas.ts";
 import sitemap from "lume/plugins/sitemap.ts";
 import foundatio from "foundatio-theme";
 
-const location = new URL("https://example.com/theme/");
+const location = new URL("https://theme.foundatio.dev/");
 const site = lume({
   location,
   prettyUrls: true,
   dest: "_site",
 });
 
+site.copy("public", ".");
+
 site.use(foundatio({
   title: "Foundatio Theme",
   description: "Dogfood site for the Foundatio Lume theme",
   location,
-  basePath: "/theme/",
+  basePath: "/",
   lume: { basePath, checkUrls, markdown, metas, sitemap },
   brand: {
     label: "Theme",
