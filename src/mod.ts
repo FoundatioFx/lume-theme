@@ -38,7 +38,7 @@ import {
 
 export type { FoundatioThemeOptions } from "./types.ts";
 
-const packageVersion = "0.1.2";
+const packageVersion = "0.1.3";
 const defaultAssetBaseUrl = new URL(
   `https://jsr.io/@foundatiofx/lume-theme/${packageVersion}/src/assets/`,
 );
@@ -69,17 +69,11 @@ function applyFoundatioTheme(
   }
 
   if (theme.assets) {
-    site.remoteFile(
-      "/assets/site.css",
-      new URL("site.css", theme.assetBaseUrl).href,
-    );
-    site.remoteFile(
-      "/assets/site.js",
-      new URL("site.js", theme.assetBaseUrl).href,
-    );
-    site.remoteFile(
-      "/assets/inter-roman-latin.woff2",
+    site.add(new URL("site.css", theme.assetBaseUrl).href, "assets/site.css");
+    site.add(new URL("site.js", theme.assetBaseUrl).href, "assets/site.js");
+    site.add(
       new URL("inter-roman-latin.woff2", theme.assetBaseUrl).href,
+      "assets/inter-roman-latin.woff2",
     );
   }
 
