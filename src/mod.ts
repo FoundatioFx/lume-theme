@@ -1,8 +1,8 @@
-import siteCss from "./assets/site.css" with { type: "text" };
-import siteJs from "./assets/site.js" with { type: "text" };
-import interRomanLatinWoff2Base64 from "./assets/inter-roman-latin.woff2.base64" with {
-  type: "text",
-};
+import {
+  interRomanLatinWoff2Base64,
+  siteCss,
+  siteJs,
+} from "./assets/bundled.ts";
 import { createGeneratedPage } from "./lume.ts";
 import type { ThemePage, ThemeSite } from "./lume.ts";
 

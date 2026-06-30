@@ -1,6 +1,6 @@
 {
   "name": "@foundatiofx/lume-theme",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "exports": "./mod.ts",
   "publish": {
     "include": [
@@ -10,8 +10,7 @@
       "src/**/*.ts",
       "src/assets/site.css",
       "src/assets/site.js",
-      "src/assets/inter-roman-latin.woff2",
-      "src/assets/inter-roman-latin.woff2.base64"
+      "src/assets/inter-roman-latin.woff2"
     ]
   },
   "lock": true,
