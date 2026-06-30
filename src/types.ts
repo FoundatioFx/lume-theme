@@ -79,7 +79,7 @@ export type ResolvedFoundatioThemeOptions =
     markdownMirrors: boolean;
     search: boolean;
     assets: boolean;
-    assetBaseUrl: URL;
+    assetBaseUrl?: URL;
     rawPagesDir: string | false;
     ignore: string[];
   };

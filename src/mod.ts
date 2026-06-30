@@ -1,3 +1,8 @@
+import siteCss from "./assets/site.css" with { type: "text" };
+import siteJs from "./assets/site.js" with { type: "text" };
+import interRomanLatinWoff2Base64 from "./assets/inter-roman-latin.woff2.base64" with {
+  type: "text",
+};
 import { createGeneratedPage } from "./lume.ts";
 import type { ThemePage, ThemeSite } from "./lume.ts";
 
@@ -38,7 +43,11 @@ import {
 
 export type { FoundatioThemeOptions } from "./types.ts";
 
-const defaultAssetBaseUrl = new URL("./assets/", import.meta.url);
+const bundledAssets: Record<string, string | Uint8Array> = {
+  "site.css": siteCss,
+  "site.js": siteJs,
+  "inter-roman-latin.woff2": base64ToBytes(interRomanLatinWoff2Base64),
+};
 
 export default function foundatio(
   options: FoundatioThemeOptions,
@@ -258,6 +267,14 @@ async function readThemeTextAsset(
   theme: ResolvedFoundatioThemeOptions,
   name: string,
 ): Promise<string> {
+  if (!theme.assetBaseUrl) {
+    const asset = bundledAssets[name];
+    if (typeof asset === "string") {
+      return asset;
+    }
+    throw new Error(`Bundled Foundatio theme asset ${name} is not text`);
+  }
+
   const response = await fetchThemeAsset(theme, name);
   return await response.text();
 }
@@ -266,6 +283,14 @@ async function readThemeBinaryAsset(
   theme: ResolvedFoundatioThemeOptions,
   name: string,
 ): Promise<Uint8Array> {
+  if (!theme.assetBaseUrl) {
+    const asset = bundledAssets[name];
+    if (asset instanceof Uint8Array) {
+      return asset;
+    }
+    throw new Error(`Bundled Foundatio theme asset ${name} is not binary`);
+  }
+
   const response = await fetchThemeAsset(theme, name);
   return new Uint8Array(await response.arrayBuffer());
 }
@@ -274,6 +299,10 @@ async function fetchThemeAsset(
   theme: ResolvedFoundatioThemeOptions,
   name: string,
 ): Promise<Response> {
+  if (!theme.assetBaseUrl) {
+    throw new Error(`Foundatio theme asset ${name} is not available`);
+  }
+
   const url = new URL(name, theme.assetBaseUrl);
   const response = await fetch(url);
   if (!response.ok) {
@@ -284,6 +313,16 @@ async function fetchThemeAsset(
 
   return response;
 }
+
+function base64ToBytes(value: string): Uint8Array {
+  const binary = atob(value.trim());
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 async function highlightContentEntries(
   entries: ContentEntry[],
   theme: ResolvedFoundatioThemeOptions,
@@ -477,7 +516,7 @@ function resolveOptions(
   const assetBaseUrl =
     typeof options.assets === "object" && options.assets.baseUrl
       ? new URL(options.assets.baseUrl)
-      : defaultAssetBaseUrl;
+      : undefined;
 
   return {
     title: options.title,

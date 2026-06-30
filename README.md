@@ -12,7 +12,7 @@ time.
 
 ```ts
 import lume from "lume/mod.ts";
-import foundatio from "jsr:@foundatiofx/lume-theme@0.1.4";
+import foundatio from "jsr:@foundatiofx/lume-theme@0.1.5";
 
 const location = new URL("https://example.com");
 const site = lume({
