@@ -36,10 +36,13 @@ jobs:
           echo "### Version: $version" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Code Style
-        run: deno fmt --check .
+        run: deno task fmt:check
 
       - name: Type Check
         run: deno task check
+
+      - name: Tests
+        run: deno task test
 
       - name: Publish Dry Run
         run: deno publish --dry-run --set-version ${{ steps.version.outputs.version }}
@@ -64,3 +67,4 @@ jobs:
 
       - name: Publish Release Package
         run: deno publish --set-version ${{ needs.check.outputs.version }}
+
