@@ -1,7 +1,5 @@
-export type ThemePlugin = (site: ThemeSite) => void | Promise<void>;
-export type LumePluginFactory<TOptions = unknown> = (
-  options?: TOptions,
-) => ThemePlugin;
+export type ThemePlugin = unknown;
+export type LumePluginFactory = (...args: any[]) => ThemePlugin;
 
 export type GeneratedPageData = {
   url: string;

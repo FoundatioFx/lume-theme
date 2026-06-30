@@ -38,7 +38,7 @@ import {
 
 export type { FoundatioThemeOptions } from "./types.ts";
 
-const packageVersion = "0.1.1";
+const packageVersion = "0.1.2";
 const defaultAssetBaseUrl = new URL(
   `https://jsr.io/@foundatiofx/lume-theme/${packageVersion}/src/assets/`,
 );
