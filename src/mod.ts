@@ -38,10 +38,7 @@ import {
 
 export type { FoundatioThemeOptions } from "./types.ts";
 
-const packageVersion = "0.1.3";
-const defaultAssetBaseUrl = new URL(
-  `https://jsr.io/@foundatiofx/lume-theme/${packageVersion}/src/assets/`,
-);
+const defaultAssetBaseUrl = new URL("./assets/", import.meta.url);
 
 export default function foundatio(
   options: FoundatioThemeOptions,
@@ -68,15 +65,6 @@ function applyFoundatioTheme(
     site.copy(theme.rawPagesDir, ".");
   }
 
-  if (theme.assets) {
-    site.add(new URL("site.css", theme.assetBaseUrl).href, "assets/site.css");
-    site.add(new URL("site.js", theme.assetBaseUrl).href, "assets/site.js");
-    site.add(
-      new URL("inter-roman-latin.woff2", theme.assetBaseUrl).href,
-      "assets/inter-roman-latin.woff2",
-    );
-  }
-
   site.preprocess([".md"], (pages) => {
     for (const page of pages) {
       const data = page.data as DocsData;
@@ -87,6 +75,10 @@ function applyFoundatioTheme(
   });
 
   site.process([".html"], async (pages, allPages) => {
+    if (theme.assets) {
+      await emitThemeAssets(pages, allPages, theme);
+    }
+
     const contentPages: ContentEntry[] = pages
       .filter((page) => isMarkdownPage(page))
       .map((page) => {
@@ -235,6 +227,63 @@ function applyFoundatioTheme(
   }
 }
 
+async function emitThemeAssets(
+  pages: ThemePage[],
+  allPages: ThemePage[],
+  theme: ResolvedFoundatioThemeOptions,
+) {
+  allPages.push(createGeneratedPage(pages, {
+    url: "/assets/site.css",
+    content: await readThemeTextAsset(theme, "site.css"),
+    unlisted: true,
+    search: false,
+  }));
+
+  allPages.push(createGeneratedPage(pages, {
+    url: "/assets/site.js",
+    content: await readThemeTextAsset(theme, "site.js"),
+    unlisted: true,
+    search: false,
+  }));
+
+  allPages.push(createGeneratedPage(pages, {
+    url: "/assets/inter-roman-latin.woff2",
+    content: await readThemeBinaryAsset(theme, "inter-roman-latin.woff2"),
+    unlisted: true,
+    search: false,
+  }));
+}
+
+async function readThemeTextAsset(
+  theme: ResolvedFoundatioThemeOptions,
+  name: string,
+): Promise<string> {
+  const response = await fetchThemeAsset(theme, name);
+  return await response.text();
+}
+
+async function readThemeBinaryAsset(
+  theme: ResolvedFoundatioThemeOptions,
+  name: string,
+): Promise<Uint8Array> {
+  const response = await fetchThemeAsset(theme, name);
+  return new Uint8Array(await response.arrayBuffer());
+}
+
+async function fetchThemeAsset(
+  theme: ResolvedFoundatioThemeOptions,
+  name: string,
+): Promise<Response> {
+  const url = new URL(name, theme.assetBaseUrl);
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Unable to load Foundatio theme asset ${url.href}: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return response;
+}
 async function highlightContentEntries(
   entries: ContentEntry[],
   theme: ResolvedFoundatioThemeOptions,
