@@ -406,13 +406,18 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-if (document.querySelector(".mermaid")) {
+const mermaidBlocks = [...document.querySelectorAll(".mermaid")];
+if (mermaidBlocks.length) {
   import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")
-    .then(({ default: mermaid }) => {
+    .then(async ({ default: mermaid }) => {
       mermaid.initialize({
-        startOnLoad: true,
+        startOnLoad: false,
         theme: root.classList.contains("dark") ? "dark" : "default",
       });
+      await mermaid.run({ nodes: mermaidBlocks });
+    })
+    .catch((error) => {
+      console.error("Failed to render Mermaid diagrams.", error);
     });
 }
 

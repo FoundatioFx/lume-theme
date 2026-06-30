@@ -57,6 +57,7 @@ Deno.test("dogfood docs render the home page through the theme", async () => {
   assertStringIncludes(html, "Foundatio Theme");
   assertStringIncludes(html, "VPHome");
   assertStringIncludes(html, "VPFeatures");
+  assertStringIncludes(html, 'class="mermaid"');
   assertStringIncludes(html, 'href="/guide/getting-started/"');
   assertStringIncludes(html, "https://theme.foundatio.dev/");
 });
@@ -105,6 +106,9 @@ Deno.test("theme emits bundled browser assets", async () => {
   await assertSiteFile("assets/inter-roman-latin.woff2");
 
   const css = await readSiteText("assets/site.css");
+  const js = await readSiteText("assets/site.js");
+  assertStringIncludes(js, "mermaid.run");
+
   assertStringIncludes(css, ".VPNav");
   const normalizedCss = css.replaceAll("\r\n", "\n");
   assertStringIncludes(

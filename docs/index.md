@@ -46,3 +46,11 @@ homeSections:
 
 This page exists so the theme repository can exercise home rendering, base-path URL rewriting, generated assets, and search metadata in one small fixture.
 
+```mermaid
+flowchart LR
+  Markdown[Markdown pages] --> Lume[Lume build]
+  Lume --> Theme[Foundatio theme]
+  Theme --> Site[Generated site]
+  Theme --> Search[Search index]
+  Theme --> Mirrors[Markdown mirrors]
+```

@@ -151,7 +151,7 @@ function markdownCodeFences(
     token.content = parsed.content;
 
     if (parsed.language === "mermaid") {
-      return `<pre class="mermaid">${escapeHtml(token.content)}</pre>`;
+      return `<pre class="mermaid">${escapeMermaid(token.content)}</pre>`;
     }
 
     const rendered = defaultFence(tokens, idx, options, env, self);
@@ -269,6 +269,12 @@ function containerLine(state: any, line: number): string {
   const start = state.bMarks[line] + state.tShift[line];
   const end = state.eMarks[line];
   return state.src.slice(start, end);
+}
+
+function escapeMermaid(value: string): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;");
 }
 
 function customBlock(type: string, fallbackTitle: string) {
