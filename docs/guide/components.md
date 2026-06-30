@@ -34,7 +34,8 @@ deno task docs:build
 ## Callouts
 
 ::: warning Callouts are useful for project-specific notes and should render
-inside normal markdown content. :::
+inside normal markdown content.
+:::
 
 ## Tables
 

@@ -1,4 +1,5 @@
 import type MarkdownIt from "npm:markdown-it@14.1.1";
+import markdownItContainer from "npm:markdown-it-container@4.0.0";
 import type { ResolvedFoundatioThemeOptions } from "./types.ts";
 import {
   escapeAttribute,
@@ -189,67 +190,32 @@ type ContainerRenderer = {
   close: () => string;
 };
 
+type MarkdownContainerPlugin = (
+  md: MarkdownIt,
+  name: string,
+  options: {
+    render: (tokens: any[], idx: number) => string;
+  },
+) => void;
+
+const containerPlugin =
+  markdownItContainer as unknown as MarkdownContainerPlugin;
+
 function addContainer(
   md: MarkdownIt,
   name: string,
   renderer: ContainerRenderer,
 ) {
-  md.block.ruler.before(
-    "fence",
-    `container_${name}`,
-    (
-      state: any,
-      startLine: number,
-      endLine: number,
-      silent: boolean,
-    ) => {
-      const line = containerLine(state, startLine);
-      const match = /^(?<marker>:{3,})\s*(?<name>[A-Za-z][\w-]*)(?<info>.*)$/
-        .exec(line);
-
-      if (!match?.groups || match.groups.name !== name) {
-        return false;
+  containerPlugin(md, name, {
+    render(tokens, idx) {
+      const token = tokens[idx];
+      if (token.nesting === 1) {
+        return renderer.open(token.info.trim().slice(name.length).trim());
       }
 
-      if (silent) {
-        return true;
-      }
-
-      const markerLength = match.groups.marker.length;
-      let nextLine = startLine;
-      let autoClosed = false;
-
-      for (nextLine = startLine + 1; nextLine < endLine; nextLine++) {
-        const currentLine = containerLine(state, nextLine);
-        if (new RegExp(`^:{${markerLength},}\\s*$`).test(currentLine)) {
-          autoClosed = true;
-          break;
-        }
-      }
-
-      const openToken = state.push(`container_${name}_open`, "div", 1);
-      openToken.markup = match.groups.marker;
-      openToken.info = match.groups.info.trim();
-      openToken.block = true;
-      openToken.map = [startLine, nextLine];
-
-      state.md.block.tokenize(state, startLine + 1, nextLine);
-
-      const closeToken = state.push(`container_${name}_close`, "div", -1);
-      closeToken.markup = match.groups.marker;
-      closeToken.block = true;
-
-      state.line = nextLine + (autoClosed ? 1 : 0);
-      return true;
+      return renderer.close();
     },
-    { alt: ["paragraph", "reference", "blockquote", "list"] },
-  );
-
-  md.renderer.rules[`container_${name}_open`] = ((tokens, idx) =>
-    renderer.open(
-      (tokens[idx] as any).info ?? "",
-    )) as MarkdownRenderRule;
-  md.renderer.rules[`container_${name}_close`] = () => renderer.close();
+  });
 }
 
 function addRawContainer(md: MarkdownIt) {

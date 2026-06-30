@@ -72,6 +72,32 @@ Deno.test("dogfood docs render guide pages with sidebar, outline, and Shiki code
   assertStringIncludes(html, 'title="Copy Code"');
   assertStringIncludes(html, 'class="tip custom-block"');
 });
+Deno.test("dogfood docs render VitePress-style custom containers without swallowing later sections", async () => {
+  const html = await readSiteText("guide/components/index.html");
+  const warningStart = html.indexOf('class="warning custom-block"');
+  const warningEnd = html.indexOf("</div>", warningStart);
+  const tablesHeading = html.indexOf('<h2 id="tables"');
+  const detailsHeading = html.indexOf('<h2 id="details"');
+
+  assert(warningStart >= 0, "warning callout should render");
+  assert(warningEnd > warningStart, "warning callout should close");
+  assert(
+    tablesHeading > warningEnd,
+    "tables section should be outside callout",
+  );
+  assert(
+    detailsHeading > tablesHeading,
+    "details section should follow tables",
+  );
+
+  const warningHtml = html.slice(warningStart, warningEnd);
+  assertStringIncludes(warningHtml, "Callouts are useful");
+  assertStringIncludes(warningHtml, "inside normal markdown content.");
+  assert(
+    !warningHtml.includes("Tables"),
+    "callout should not contain later sections",
+  );
+});
 
 Deno.test("theme emits bundled browser assets", async () => {
   await assertSiteFile("assets/site.css");

@@ -28,7 +28,30 @@
   --vp-c-default-2: #e4e4e9;
   --vp-c-default-3: #ebebef;
   --vp-c-default-soft: rgba(142, 150, 170, .14);
+  --vp-c-warning-1: #915930;
   --vp-c-warning-soft: rgba(234, 179, 8, .14);
+  --vp-c-danger-1: #b8272c;
+  --vp-c-danger-soft: rgba(244, 63, 94, .14);
+  --vp-custom-block-info-border: transparent;
+  --vp-custom-block-info-text: var(--vp-c-text-2);
+  --vp-custom-block-info-bg: var(--vp-c-default-soft);
+  --vp-custom-block-info-code-bg: var(--vp-c-default-soft);
+  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-text: var(--vp-c-brand-1);
+  --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-warning-border: transparent;
+  --vp-custom-block-warning-text: var(--vp-c-warning-1);
+  --vp-custom-block-warning-bg: var(--vp-c-warning-soft);
+  --vp-custom-block-warning-code-bg: var(--vp-c-warning-soft);
+  --vp-custom-block-danger-border: transparent;
+  --vp-custom-block-danger-text: var(--vp-c-danger-1);
+  --vp-custom-block-danger-bg: var(--vp-c-danger-soft);
+  --vp-custom-block-danger-code-bg: var(--vp-c-danger-soft);
+  --vp-custom-block-details-border: var(--vp-custom-block-info-border);
+  --vp-custom-block-details-text: var(--vp-custom-block-info-text);
+  --vp-custom-block-details-bg: var(--vp-custom-block-info-bg);
+  --vp-custom-block-details-code-bg: var(--vp-custom-block-info-code-bg);
   --vp-code-block-bg: var(--vp-c-bg-alt);
   --vp-code-bg: var(--vp-c-default-soft);
   --vp-sidebar-width: 272px;
@@ -64,7 +87,10 @@
   --vp-c-default-2: #414853;
   --vp-c-default-3: #32363f;
   --vp-c-default-soft: rgba(101, 117, 133, .16);
+  --vp-c-warning-1: #f9b44e;
   --vp-c-warning-soft: rgba(234, 179, 8, .16);
+  --vp-c-danger-1: #f66f81;
+  --vp-c-danger-soft: rgba(244, 63, 94, .16);
   --vp-scrollbar-thumb-color: rgba(82, 82, 89, .75);
   --vp-scrollbar-thumb-hover-color: rgba(110, 110, 118, .9);
 }
@@ -1535,22 +1561,81 @@ html.nav-screen-open body {
   background-image: var(--vp-icon-copied);
 }
 .custom-block {
+  border: 1px solid transparent;
   border-radius: 8px;
   margin: 16px 0;
-  padding: 16px;
+  padding: 16px 16px 8px;
+  line-height: 24px;
   font-size: 14px;
-  color: var(--vp-c-text-1);
+  color: var(--vp-c-text-2);
 }
-.custom-block.tip,
 .custom-block.info {
-  background: var(--vp-c-brand-soft);
+  border-color: var(--vp-custom-block-info-border);
+  color: var(--vp-custom-block-info-text);
+  background-color: var(--vp-custom-block-info-bg);
+}
+.custom-block.tip {
+  border-color: var(--vp-custom-block-tip-border);
+  color: var(--vp-custom-block-tip-text);
+  background-color: var(--vp-custom-block-tip-bg);
 }
 .custom-block.warning {
-  background: var(--vp-c-warning-soft);
+  border-color: var(--vp-custom-block-warning-border);
+  color: var(--vp-custom-block-warning-text);
+  background-color: var(--vp-custom-block-warning-bg);
+}
+.custom-block.danger {
+  border-color: var(--vp-custom-block-danger-border);
+  color: var(--vp-custom-block-danger-text);
+  background-color: var(--vp-custom-block-danger-bg);
+}
+.custom-block.details {
+  border-color: var(--vp-custom-block-details-border);
+  color: var(--vp-custom-block-details-text);
+  background-color: var(--vp-custom-block-details-bg);
+}
+.custom-block p {
+  margin: 8px 0;
+  line-height: 24px;
 }
 .custom-block-title {
-  margin: 0 0 8px !important;
+  margin: 0;
   font-weight: 600;
+}
+.custom-block-title + p {
+  margin: 8px 0;
+}
+.custom-block a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity .25s;
+}
+.custom-block a:hover {
+  opacity: .75;
+}
+.custom-block code {
+  background-color: var(--vp-custom-block-info-code-bg);
+}
+.custom-block.tip code {
+  background-color: var(--vp-custom-block-tip-code-bg);
+}
+.custom-block.warning code {
+  background-color: var(--vp-custom-block-warning-code-bg);
+}
+.custom-block.danger code {
+  background-color: var(--vp-custom-block-danger-code-bg);
+}
+.custom-block.details code {
+  background-color: var(--vp-custom-block-details-code-bg);
+}
+.custom-block div[class*="language-"] {
+  margin: 8px 0;
+  border-radius: 8px;
+}
+.custom-block div[class*="language-"] code {
+  background-color: transparent;
 }
 .vp-code-group {
   border-radius: 8px;
@@ -2226,13 +2311,7 @@ details.VPSidebarItem[open] > summary .caret::before {
 .table-of-contents a:hover {
   color: var(--vp-c-brand-1);
 }
-.custom-block.danger {
-  background: rgba(244, 63, 94, .14);
-}
-.custom-block.details {
-  border: 1px solid var(--vp-c-divider);
-  background: var(--vp-c-bg-soft);
-}
+
 .custom-block.details > summary {
   margin: 0;
   font-weight: 600;
