@@ -1,12 +1,34 @@
 {
+  "name": "@foundatio/lume-theme",
+  "version": "0.1.1",
+  "exports": "./mod.ts",
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "mod.ts",
+      "src/**/*.ts",
+      "src/assets/site.css",
+      "src/assets/site.js",
+      "src/assets/inter-roman-latin.woff2"
+    ]
+  },
   "lock": true,
   "nodeModulesDir": "none",
   "imports": {
-    "lume/": "https://deno.land/x/lume@v3.2.5/",
     "shiki": "npm:shiki@3.22.0"
   },
   "tasks": {
     "check": "deno check mod.ts",
-    "fmt": "deno fmt ."
+    "fmt": "deno fmt .",
+    "publish:dry-run": "deno publish --dry-run --allow-dirty"
+  },
+  "compilerOptions": {
+    "lib": [
+      "deno.ns",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   }
 }

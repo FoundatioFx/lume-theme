@@ -1,14 +1,16 @@
-import type { Page } from "lume/core/file.ts";
-import type { Options as CheckUrlsOptions } from "lume/plugins/check_urls.ts";
-import type { MetaData } from "lume/plugins/metas.ts";
-import type { Options as SitemapOptions } from "lume/plugins/sitemap.ts";
+import type { FoundatioLumeOptions, ThemePage } from "./lume.ts";
 
+type PluginOptions = Record<string, unknown>;
+type MetaData = Record<string, unknown>;
+type SitemapOptions = PluginOptions;
+type CheckUrlsOptions = PluginOptions;
 export type FoundatioThemeOptions = {
   title: string;
   description: string;
   location?: string | URL;
   basePath?: string;
   docsRoot?: string;
+  lume: FoundatioLumeOptions;
   head?: HeadEntry[];
   metas?: MetaData;
   labels?: Partial<ThemeLabels>;
@@ -42,14 +44,14 @@ export type FoundatioThemeOptions = {
   llms?: boolean;
   markdownMirrors?: boolean;
   search?: boolean;
-  assets?: boolean;
+  assets?: boolean | { baseUrl?: string | URL };
   rawPagesDir?: string | false;
   ignore?: string[];
 };
 
 export type ResolvedFoundatioThemeOptions =
   & Required<
-    Pick<FoundatioThemeOptions, "title" | "description" | "docsRoot">
+    Pick<FoundatioThemeOptions, "title" | "description" | "docsRoot" | "lume">
   >
   & {
     location?: URL;
@@ -77,6 +79,7 @@ export type ResolvedFoundatioThemeOptions =
     markdownMirrors: boolean;
     search: boolean;
     assets: boolean;
+    assetBaseUrl: URL;
     rawPagesDir: string | false;
     ignore: string[];
   };
@@ -196,7 +199,7 @@ export type DocsData = {
   homeSections?: HomeSection[];
   prev?: false | PageLink;
   next?: false | PageLink;
-  page?: Page;
+  page?: ThemePage;
 };
 
 export type SidebarPage = {
@@ -219,7 +222,7 @@ export type SidebarSection = {
 };
 
 export type ContentEntry = {
-  page: Page;
+  page: ThemePage;
   data: DocsData;
   sourcePath: string;
   html: string;

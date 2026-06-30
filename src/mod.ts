@@ -1,10 +1,5 @@
-import type Site from "lume/core/site.ts";
-import { Page } from "lume/core/file.ts";
-import basePath from "lume/plugins/base_path.ts";
-import checkUrls from "lume/plugins/check_urls.ts";
-import markdown from "lume/plugins/markdown.ts";
-import metas from "lume/plugins/metas.ts";
-import sitemap from "lume/plugins/sitemap.ts";
+import { createGeneratedPage } from "./lume.ts";
+import type { ThemePage, ThemeSite } from "./lume.ts";
 
 import { prepareMarkdownSource } from "./authoring.ts";
 import { applyCodeLineAnnotations, highlightCodeBlocks } from "./code.ts";
@@ -43,10 +38,17 @@ import {
 
 export type { FoundatioThemeOptions } from "./types.ts";
 
-export default function foundatio(options: FoundatioThemeOptions) {
+const packageVersion = "0.1.1";
+const defaultAssetBaseUrl = new URL(
+  `https://jsr.io/@foundatio/lume-theme/${packageVersion}/src/assets/`,
+);
+
+export default function foundatio(
+  options: FoundatioThemeOptions,
+): (site: ThemeSite) => void {
   const theme = resolveOptions(options);
 
-  return (site: Site) => {
+  return (site: ThemeSite) => {
     applyFoundatioTheme(site, theme);
   };
 }
@@ -54,24 +56,30 @@ export default function foundatio(options: FoundatioThemeOptions) {
 export { foundatio as foundatioTheme };
 
 function applyFoundatioTheme(
-  site: Site,
+  site: ThemeSite,
   theme: ResolvedFoundatioThemeOptions,
 ) {
   let searchContentPages: ContentEntry[] = [];
 
   site.ignore(...theme.ignore);
-  site.use(markdown(markdownOptions(theme)));
+  site.use(theme.lume.markdown(markdownOptions(theme)));
 
   if (theme.rawPagesDir && directoryExists(theme.rawPagesDir)) {
     site.copy(theme.rawPagesDir, ".");
   }
 
   if (theme.assets) {
-    site.add(import.meta.resolve("./assets/site.css"), "/assets/site.css");
-    site.add(import.meta.resolve("./assets/site.js"), "/assets/site.js");
-    site.add(
-      import.meta.resolve("./assets/inter-roman-latin.woff2"),
+    site.remoteFile(
+      "/assets/site.css",
+      new URL("site.css", theme.assetBaseUrl).href,
+    );
+    site.remoteFile(
+      "/assets/site.js",
+      new URL("site.js", theme.assetBaseUrl).href,
+    );
+    site.remoteFile(
       "/assets/inter-roman-latin.woff2",
+      new URL("inter-roman-latin.woff2", theme.assetBaseUrl).href,
     );
   }
 
@@ -121,7 +129,7 @@ function applyFoundatioTheme(
           isDocsPath(entry.sourcePath, theme.docsRoot)
         )
       ) {
-        allPages.push(Page.create({
+        allPages.push(createGeneratedPage(pages, {
           url: markdownMirrorUrlForPage(entry.data.url),
           content: renderMarkdownMirror(entry),
           unlisted: true,
@@ -141,7 +149,7 @@ function applyFoundatioTheme(
     }
 
     if (theme.llms) {
-      allPages.push(Page.create({
+      allPages.push(createGeneratedPage(pages, {
         url: "/llms.txt",
         content: renderLlmsIndex(
           flatSidebarPages,
@@ -152,7 +160,7 @@ function applyFoundatioTheme(
         search: false,
       }));
 
-      allPages.push(Page.create({
+      allPages.push(createGeneratedPage(pages, {
         url: "/llms-full.txt",
         content: renderLlmsFull(contentPages, flatSidebarPages, theme),
         unlisted: true,
@@ -161,7 +169,7 @@ function applyFoundatioTheme(
     }
 
     for (const [from, to] of Object.entries(theme.redirects)) {
-      allPages.push(Page.create({
+      allPages.push(createGeneratedPage(pages, {
         url: from,
         content: renderRedirect(to),
         unlisted: true,
@@ -175,7 +183,7 @@ function applyFoundatioTheme(
         continue;
       }
 
-      allPages.push(Page.create({
+      allPages.push(createGeneratedPage(pages, {
         url: legacyUrl,
         content: renderRedirect(entry.data.url),
         unlisted: true,
@@ -183,7 +191,7 @@ function applyFoundatioTheme(
       }));
     }
 
-    allPages.push(Page.create({
+    allPages.push(createGeneratedPage(pages, {
       url: "/404.html",
       content: renderNotFound(theme),
       unlisted: true,
@@ -191,12 +199,12 @@ function applyFoundatioTheme(
     }));
   });
 
-  site.process([".html"], (_pages, allPages) => {
+  site.process([".html"], (pages, allPages) => {
     if (!theme.search) {
       return;
     }
 
-    allPages.push(Page.create({
+    allPages.push(createGeneratedPage(pages, {
       url: "/search-index.json",
       content: JSON.stringify(
         buildSearchIndex(searchContentPages, theme),
@@ -208,7 +216,7 @@ function applyFoundatioTheme(
     }));
   });
 
-  site.use(metas());
+  site.use(theme.lume.metas());
   site.process([".html"], (pages) => {
     for (const page of pages) {
       addImageDefaults(page);
@@ -216,11 +224,11 @@ function applyFoundatioTheme(
   });
 
   if (theme.checkUrls) {
-    site.use(checkUrls(theme.checkUrls));
+    site.use(theme.lume.checkUrls(theme.checkUrls));
   }
 
   if (theme.sitemap) {
-    site.use(sitemap(theme.sitemap));
+    site.use(theme.lume.sitemap(theme.sitemap));
   }
 
   if (theme.basePath !== "/") {
@@ -229,7 +237,7 @@ function applyFoundatioTheme(
         applyBasePathCanonical(page, theme);
       }
     });
-    site.use(basePath());
+    site.use(theme.lume.basePath());
   }
 }
 
@@ -253,7 +261,7 @@ function markdownMirrorUrlForPage(url: string) {
     `${url.replace(/\/$/, "")}.md`;
 }
 
-function readOriginalSource(page: Page): string {
+function readOriginalSource(page: ThemePage): string {
   return page.src.entry ? Deno.readTextFileSync(page.src.entry.src) : page.text;
 }
 
@@ -270,7 +278,10 @@ function normalizeLayout(data: DocsData) {
   delete data.layout;
 }
 
-function applyLastUpdated(page: Page, theme: ResolvedFoundatioThemeOptions) {
+function applyLastUpdated(
+  page: ThemePage,
+  theme: ResolvedFoundatioThemeOptions,
+) {
   if (!theme.lastUpdated) {
     return;
   }
@@ -338,7 +349,7 @@ function coerceDate(value: Date | string | undefined): Date | undefined {
   return Number.isNaN(date.valueOf()) ? undefined : date;
 }
 
-function addImageDefaults(page: Page) {
+function addImageDefaults(page: ThemePage) {
   for (
     const image of page.document.querySelectorAll<HTMLImageElement>("img")
   ) {
@@ -357,7 +368,7 @@ function addImageDefaults(page: Page) {
 }
 
 function applyBasePathCanonical(
-  page: Page,
+  page: ThemePage,
   theme: ResolvedFoundatioThemeOptions,
 ) {
   if (!theme.location) {
@@ -419,6 +430,11 @@ function resolveOptions(
   const defaultSitemap = lastUpdated
     ? { items: { lastmod: "=lastmod" } }
     : { items: { lastmod: "__docsLastmodDisabled" } };
+  const assets = options.assets !== false;
+  const assetBaseUrl =
+    typeof options.assets === "object" && options.assets.baseUrl
+      ? new URL(options.assets.baseUrl)
+      : defaultAssetBaseUrl;
 
   return {
     title: options.title,
@@ -426,6 +442,7 @@ function resolveOptions(
     location,
     basePath: base,
     docsRoot,
+    lume: options.lume,
     head: options.head ?? [],
     metas: {
       robots: true,
@@ -495,7 +512,8 @@ function resolveOptions(
     llms: options.llms ?? true,
     markdownMirrors: options.markdownMirrors ?? true,
     search: options.search ?? true,
-    assets: options.assets ?? true,
+    assets,
+    assetBaseUrl,
     rawPagesDir: options.rawPagesDir === undefined
       ? "pages"
       : options.rawPagesDir,

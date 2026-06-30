@@ -6,7 +6,7 @@ import {
   relative,
   resolve,
 } from "node:path";
-import type { Page } from "lume/core/file.ts";
+import type { ThemePage } from "./lume.ts";
 
 import type { ResolvedFoundatioThemeOptions } from "./types.ts";
 import { sourcePath } from "./utils.ts";
@@ -15,7 +15,7 @@ const snippetPattern = /^<<<\s+(.+?)\s*$/gm;
 const includePattern = /<!--\s*@include:\s+(.+?)\s*-->/g;
 
 export function prepareMarkdownSource(
-  page: Page,
+  page: ThemePage,
   theme: ResolvedFoundatioThemeOptions,
 ) {
   if (!theme.snippets) {

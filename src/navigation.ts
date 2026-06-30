@@ -6,9 +6,9 @@ import {
   sourcePath,
   titleFromPath,
 } from "./utils.ts";
-import type { Page } from "lume/core/file.ts";
+import type { ThemePage } from "./lume.ts";
 
-export function toSidebarPage(page: Page, docsRoot: string): SidebarPage {
+export function toSidebarPage(page: ThemePage, docsRoot: string): SidebarPage {
   const data = page.data as DocsData;
   const meta = data.nav ?? {};
   const title = meta.title ?? data.title ?? firstHeading(data) ??
@@ -56,7 +56,7 @@ export function buildSidebar(
 }
 
 export function docsSidebarPages(
-  pages: Array<{ page: Page; sourcePath: string }>,
+  pages: Array<{ page: ThemePage; sourcePath: string }>,
   docsRoot: string,
 ) {
   return pages
@@ -69,7 +69,11 @@ export function flattenSidebar(sections: SidebarSection[]): SidebarPage[] {
   return sections.flatMap((section) => flattenItems(section.items));
 }
 
-function insertPage(items: SidebarPage[], page: SidebarPage, docsRoot: string) {
+function insertPage(
+  items: SidebarPage[],
+  page: SidebarPage,
+  docsRoot: string,
+) {
   const parts = relativeDocsParts(page.sourcePath ?? "", docsRoot);
   if (parts.length <= 1) {
     items.push(page);
@@ -105,7 +109,10 @@ function relativeDocsParts(path: string, docsRoot: string) {
   return relative.replace(/\.md$/, "").split("/").filter(Boolean);
 }
 
-function assignLevels(items: SidebarPage[], level: number): SidebarPage[] {
+function assignLevels(
+  items: SidebarPage[],
+  level: number,
+): SidebarPage[] {
   return items.map((item) => ({
     ...item,
     level,

@@ -1,11 +1,11 @@
-import type { Page } from "lume/core/file.ts";
+import type { ThemePage } from "./lume.ts";
 import { createHighlighter } from "shiki";
 import type { ResolvedFoundatioThemeOptions } from "./types.ts";
 
 let highlighterPromise: ReturnType<typeof createHighlighter> | undefined;
 
 export async function highlightCodeBlocks(
-  pages: Page[],
+  pages: ThemePage[],
   theme: ResolvedFoundatioThemeOptions,
 ) {
   if (!theme.codeHighlight) {
@@ -38,7 +38,7 @@ export async function highlightCodeBlocks(
   }
 }
 
-export function applyCodeLineAnnotations(page: Page) {
+export function applyCodeLineAnnotations(page: ThemePage) {
   for (
     const wrapper of page.document.querySelectorAll<HTMLElement>(
       "div[class*='language-']",
@@ -190,7 +190,7 @@ function lineNumbersHtml(count: number, start: number) {
   ).join("");
 }
 
-function initializeCodeGroups(page: Page) {
+function initializeCodeGroups(page: ThemePage) {
   for (
     const group of page.document.querySelectorAll<HTMLElement>(
       ".vp-code-group",

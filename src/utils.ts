@@ -1,7 +1,7 @@
 import type { Badge, DocsData, Heading } from "./types.ts";
-import type { Page } from "lume/core/file.ts";
+import type { ThemePage } from "./lume.ts";
 
-export function sourcePath(page: Page): string {
+export function sourcePath(page: ThemePage): string {
   return page.sourcePath.replaceAll("\\", "/");
 }
 
@@ -17,7 +17,7 @@ export function isDocsPath(path: string, root: string): boolean {
   return path.startsWith(docsUrlPrefix(root));
 }
 
-export function isMarkdownPage(page: Page): boolean {
+export function isMarkdownPage(page: ThemePage): boolean {
   const data = page.data as DocsData;
   const path = sourcePath(page);
   return page.isHTML &&

@@ -28,10 +28,10 @@ import {
   sourcePath,
   titleFromPath,
 } from "./utils.ts";
-import type { Page } from "lume/core/file.ts";
+import type { ThemePage } from "./lume.ts";
 
 export function renderDocument(options: {
-  page: Page;
+  page: ThemePage;
   body: string;
   sidebar: SidebarSection[];
   flatGuidePages: SidebarPage[];
@@ -484,7 +484,7 @@ function renderContentPage(content: string): string {
 }
 
 function renderDocsPage(
-  page: Page,
+  page: ThemePage,
   content: string,
   flatGuidePages: SidebarPage[],
   theme: ResolvedFoundatioThemeOptions,
@@ -587,7 +587,10 @@ function renderSidebarItem(item: SidebarPage, currentUrl: string): string {
   }</div></details>`;
 }
 
-function sidebarItemHasActive(item: SidebarPage, currentUrl: string): boolean {
+function sidebarItemHasActive(
+  item: SidebarPage,
+  currentUrl: string,
+): boolean {
   return item.url === currentUrl ||
     item.children.some((child) => sidebarItemHasActive(child, currentUrl));
 }
