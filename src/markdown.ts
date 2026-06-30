@@ -144,9 +144,26 @@ function markdownCodeFences(
 ) {
   const defaultFence = md.renderer.rules.fence!;
 
+  md.core.ruler.after("block", "docs_fence_info", (state: any) => {
+    const lines = state.src.replace(/\r\n/g, "\n").split("\n");
+    for (const token of state.tokens ?? []) {
+      if (token.type !== "fence" || !token.map) {
+        continue;
+      }
+
+      const rawFenceLine = lines[token.map[0]] ?? "";
+      const match = /^\s*(`{3,}|~{3,})(?<info>.*)$/.exec(rawFenceLine);
+      if (match?.groups?.info) {
+        token.meta ??= {};
+        token.meta.__docsFenceInfo = match.groups.info.trim();
+      }
+    }
+  });
+
   md.renderer.rules.fence = ((tokens, idx, options, env, self) => {
     const token = tokens[idx];
-    const parsed = parseFence(token.info, token.content, theme);
+    const sourceInfo = token.meta?.__docsFenceInfo ?? token.info;
+    const parsed = parseFence(sourceInfo, token.content, theme);
     token.info = parsed.language;
     token.content = parsed.content;
 
@@ -393,6 +410,10 @@ function codeMarkerClass(value: string) {
       return "diff remove";
     case "focus":
       return "has-focus";
+    case "warning":
+      return "highlighted warning";
+    case "error":
+      return "highlighted error";
     default:
       return value;
   }

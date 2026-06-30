@@ -158,42 +158,42 @@ function codeTextFromPre(pre) {
 }
 
 document.querySelectorAll(".vp-code-group").forEach((group) => {
-  const blocks = [...group.children].filter((child) =>
+  const tabs = group.querySelector(":scope > .tabs");
+  const blocksWrapper = group.querySelector(":scope > .blocks");
+  const blocks = [...(blocksWrapper?.children || [])].filter((child) =>
     child.matches("div[class^='language-'], div[class*=' language-']")
   );
+  const inputs = [...(tabs?.querySelectorAll("input[type='radio']") || [])];
 
-  if (blocks.length < 2) {
+  if (!tabs || !blocksWrapper || blocks.length === 0 || inputs.length === 0) {
     return;
   }
 
-  const tabs = document.createElement("div");
-  tabs.className = "tabs";
-
-  blocks.forEach((block, index) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = block.dataset.title ||
-      block.querySelector(".lang")?.textContent || `Example ${index + 1}`;
-    button.className = index === 0 ? "active" : "";
-    block.hidden = index !== 0;
-    block.classList.toggle("active", index === 0);
-
-    button.addEventListener("click", () => {
-      tabs.querySelectorAll("button").forEach((tab) =>
-        tab.classList.remove("active")
-      );
-      button.classList.add("active");
-      blocks.forEach((candidate) => {
-        const active = candidate === block;
-        candidate.hidden = !active;
-        candidate.classList.toggle("active", active);
-      });
+  const activate = (activeIndex) => {
+    blocks.forEach((block, index) => {
+      const active = index === activeIndex;
+      block.hidden = !active;
+      block.classList.toggle("active", active);
+      if (inputs[index]) {
+        inputs[index].checked = active;
+      }
     });
+  };
 
-    tabs.append(button);
+  inputs.forEach((input, index) => {
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        activate(index);
+      }
+    });
   });
 
-  group.prepend(tabs);
+  const checkedIndex = Math.max(
+    0,
+    inputs.findIndex((input) => input.checked),
+    blocks.findIndex((block) => block.classList.contains("active")),
+  );
+  activate(checkedIndex);
   group.classList.add("enhanced");
 });
 

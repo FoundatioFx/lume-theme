@@ -28,10 +28,12 @@ features:
     details: The theme is structured for project sites that can grow into guides, blogs, news, and custom pages.
 homeSections:
   - title: Designed for Lume
-    text: The fixture uses a standard Lume config with site.use(foundatio(...)) so the theme is tested the same way consuming projects use it.
+    text: Use a standard Lume site with site.use(foundatio(...)) while the theme composes markdown, metadata, navigation, search, sitemap, and support outputs.
     links:
       - text: Read the guide
         link: /guide/getting-started
+      - text: View the demo
+        link: /guide/demo
   - title: Built-in outputs
     features:
       - title: Local search
@@ -42,15 +44,8 @@ homeSections:
         details: Public markdown mirrors are generated for docs pages.
 ---
 
-## Dogfood Coverage
+## Built for technical project sites
 
-This page exists so the theme repository can exercise home rendering, base-path URL rewriting, generated assets, and search metadata in one small fixture.
+Foundatio Theme is a shared presentation layer for projects that want polished documentation without giving up Lume's flexible build pipeline. Keep most content in markdown, let front matter drive navigation, and still have room for custom pages, release notes, blogs, or project-specific sections.
 
-```mermaid
-flowchart LR
-  Markdown[Markdown pages] --> Lume[Lume build]
-  Lume --> Theme[Foundatio theme]
-  Theme --> Site[Generated site]
-  Theme --> Search[Search index]
-  Theme --> Mirrors[Markdown mirrors]
-```
+Use the [theme demo](/guide/demo) when changing styles or renderers. The home page stays product-facing while the demo page carries broad visual coverage.

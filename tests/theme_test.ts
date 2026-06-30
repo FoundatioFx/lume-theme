@@ -57,9 +57,10 @@ Deno.test("dogfood docs render the home page through the theme", async () => {
   assertStringIncludes(html, "Foundatio Theme");
   assertStringIncludes(html, "VPHome");
   assertStringIncludes(html, "VPFeatures");
-  assertStringIncludes(html, 'class="mermaid"');
+  assertStringIncludes(html, "Built for technical project sites");
   assertStringIncludes(html, 'href="/guide/getting-started/"');
   assertStringIncludes(html, "https://theme.foundatio.dev/");
+  assert(!html.includes("Dogfood Coverage"));
 });
 
 Deno.test("dogfood docs render guide pages with sidebar, outline, and Shiki code", async () => {
@@ -70,6 +71,7 @@ Deno.test("dogfood docs render guide pages with sidebar, outline, and Shiki code
   assertStringIncludes(html, "VPDocAsideOutline");
   assertStringIncludes(html, "Install the package");
   assertStringIncludes(html, 'class="shiki');
+  assertStringIncludes(html, "--shiki-light:#c62739");
   assertStringIncludes(html, 'title="Copy Code"');
   assertStringIncludes(html, 'class="tip custom-block"');
 });
@@ -98,6 +100,38 @@ Deno.test("dogfood docs render VitePress-style custom containers without swallow
     !warningHtml.includes("Tables"),
     "callout should not contain later sections",
   );
+});
+
+Deno.test("dogfood docs render a dedicated demo page with broad markdown coverage", async () => {
+  const html = await readSiteText("guide/demo/index.html");
+
+  assertStringIncludes(html, "Theme Demo");
+  assertStringIncludes(html, 'class="mermaid"');
+  assertStringIncludes(html, 'class="VPBadge tip"');
+  assertStringIncludes(html, 'class="info custom-block"');
+  assertStringIncludes(html, 'class="tip custom-block"');
+  assertStringIncludes(html, 'class="warning custom-block"');
+  assertStringIncludes(html, 'class="danger custom-block"');
+  assertStringIncludes(html, 'class="details custom-block"');
+  assertStringIncludes(html, 'class="vp-code-group"');
+  assertStringIncludes(html, 'class="tabs"');
+  assertStringIncludes(html, 'type="radio"');
+  assertStringIncludes(html, 'class="blocks"');
+  assertStringIncludes(html, 'data-title="theme.ts"');
+  assertStringIncludes(html, 'class="line diff add"');
+  assertStringIncludes(html, 'class="line highlighted" data-line-number="5"');
+  assertStringIncludes(html, 'class="line highlighted warning"');
+  assertStringIncludes(html, 'class="line has-focus"');
+  assertStringIncludes(html, 'data-tab-title="theme.ts"');
+  assertStringIncludes(html, 'data-tab-title="guide/page.md"');
+  assertStringIncludes(html, 'data-tab-title="src/BuildSiteHandler.cs"');
+  assertStringIncludes(html, 'data-tab-title="single.config.ts"');
+  assert((html.match(/class="vp-code-group"/g)?.length ?? 0) >= 2);
+  assertStringIncludes(html, "--shiki-dark:#818e99");
+  assert((html.match(/line-numbers-mode/g)?.length ?? 0) >= 4);
+  assert((html.match(/line-numbers-wrapper/g)?.length ?? 0) >= 4);
+  assertStringIncludes(html, "Local search");
+  assertStringIncludes(html, "Footer Navigation");
 });
 
 Deno.test("theme emits bundled browser assets", async () => {
@@ -130,6 +164,7 @@ Deno.test("theme emits support outputs for search, llms, markdown mirrors, and l
   await assertSiteFile("llms.txt");
   await assertSiteFile("llms-full.txt");
   await assertSiteFile("guide/getting-started.md");
+  await assertSiteFile("guide/demo/index.html");
   await assertSiteFile("guide/getting-started.html");
   await assertSiteFile("sitemap.xml");
   await assertSiteFile("CNAME");

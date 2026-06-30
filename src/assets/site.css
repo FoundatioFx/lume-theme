@@ -1523,41 +1523,38 @@ html.nav-screen-open body {
 /* lume-docs:highlight */
 .vp-doc .lang {
   position: absolute;
-  top: 6px;
-  right: 12px;
+  top: 2px;
+  right: 8px;
   font-size: 12px;
   font-weight: 500;
   line-height: 24px;
-  color: var(--vp-c-text-3);
+  color: var(--vp-code-lang-color);
 }
 .vp-doc .copy {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   z-index: 3;
-  border: 1px solid var(--vp-c-divider);
+  border: 1px solid var(--vp-code-copy-code-border-color);
   border-radius: 4px;
-  width: 32px;
-  height: 32px;
-  background: var(--vp-c-bg-soft);
+  width: 40px;
+  height: 40px;
+  background-color: var(--vp-code-copy-code-bg);
+  background-image: var(--vp-icon-copy);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px;
   opacity: 0;
+  transition: border-color .25s, background-color .25s, opacity .25s;
 }
 .vp-doc div[class*="language-"]:hover .copy {
   opacity: 1;
 }
-.vp-doc .copy::before {
-  content: "";
-  position: absolute;
-  top: 7px;
-  left: 7px;
-  width: 16px;
-  height: 16px;
-  background-image: var(--vp-icon-copy);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 16px 16px;
+.vp-doc .copy:hover {
+  border-color: var(--vp-code-copy-code-hover-border-color);
+  background-color: var(--vp-code-copy-code-hover-bg);
 }
-.vp-doc .copy.copied::before {
+.vp-doc .copy.copied {
   background-image: var(--vp-icon-copied);
 }
 .custom-block {
@@ -1638,42 +1635,76 @@ html.nav-screen-open body {
   background-color: transparent;
 }
 .vp-code-group {
-  border-radius: 8px;
-  margin: 16px 0;
-  background: var(--vp-code-block-bg);
-  overflow: hidden;
+  margin-top: 16px;
 }
 .vp-code-group .tabs {
-  display: flex;
-  border-bottom: 1px solid var(--vp-c-divider);
-  padding: 0 12px;
-  background: var(--vp-code-block-bg);
-}
-.vp-code-group .tabs button {
   position: relative;
+  display: flex;
+  margin-right: -24px;
+  margin-left: -24px;
   padding: 0 12px;
-  height: 48px;
+  background-color: var(--vp-code-tab-bg);
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-shadow: inset 0 -1px var(--vp-code-tab-divider);
+}
+.vp-code-group .tabs input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+@media (min-width: 640px) {
+  .vp-code-group .tabs {
+    margin-right: 0;
+    margin-left: 0;
+    border-radius: 8px 8px 0 0;
+  }
+}
+.vp-code-group .tabs label {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px solid transparent;
+  padding: 0 12px;
+  line-height: 48px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--vp-c-text-2);
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
+  color: var(--vp-code-tab-text-color);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .25s;
 }
-.vp-code-group .tabs button.active {
-  color: var(--vp-c-text-1);
-}
-.vp-code-group .tabs button.active::after {
-  content: "";
+.vp-code-group .tabs label::after {
   position: absolute;
   right: 8px;
-  bottom: 0;
+  bottom: -1px;
   left: 8px;
+  z-index: 1;
   height: 2px;
-  background: var(--vp-c-brand-1);
+  border-radius: 2px;
+  content: "";
+  background-color: transparent;
+  transition: background-color .25s;
 }
-.vp-code-group div[class*="language-"] {
-  border-radius: 0;
-  margin: 0;
+.vp-code-group .tabs label:hover {
+  color: var(--vp-code-tab-hover-text-color);
+}
+.vp-code-group .tabs input:checked + label {
+  color: var(--vp-code-tab-active-text-color);
+}
+.vp-code-group .tabs input:checked + label::after {
+  background-color: var(--vp-code-tab-active-bar-color);
+}
+.vp-code-group .blocks {
+  margin-top: 0;
+}
+.vp-code-group .blocks div[class*="language-"] {
+  display: none;
+  margin-top: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+.vp-code-group .blocks div[class*="language-"].active {
+  display: block;
 }
 .mermaid {
   border-radius: 8px;
@@ -2339,6 +2370,10 @@ details.VPSidebarItem[open] > summary .caret::before {
 .vp-doc div[class*="language-"][data-title] .copy {
   opacity: 1;
 }
+.vp-doc div[class*="language-"][data-title].line-numbers-mode::before {
+  margin-left: -32px;
+  padding-left: 48px;
+}
 .vp-doc div.has-lines pre {
   padding: 0;
 }
@@ -2353,27 +2388,32 @@ details.VPSidebarItem[open] > summary .caret::before {
   padding: 0 24px;
   min-height: 1.7em;
 }
-.vp-doc .line.highlighted,
-.vp-doc .line.focus {
-  background: var(--vp-c-brand-soft);
+.vp-doc .line.highlighted {
+  background-color: var(--vp-code-line-highlight-color);
 }
 .vp-doc .line.warning {
-  background: var(--vp-c-warning-soft);
+  background-color: var(--vp-code-line-warning-color);
 }
 .vp-doc .line.error {
-  background: rgba(244, 63, 94, .16);
+  background-color: var(--vp-code-line-error-color);
 }
 .vp-doc .line.diff.add {
-  background: rgba(16, 185, 129, .14);
+  background-color: var(--vp-code-line-diff-add-color);
 }
 .vp-doc .line.diff.remove {
-  background: rgba(244, 63, 94, .14);
+  background-color: var(--vp-code-line-diff-remove-color);
+  opacity: .7;
 }
 .vp-doc .line.diff.add::before,
 .vp-doc .line.diff.remove::before {
   position: absolute;
   left: 10px;
-  color: var(--vp-c-text-3);
+}
+.vp-doc .line.diff.add::before {
+  color: var(--vp-code-line-diff-add-symbol-color);
+}
+.vp-doc .line.diff.remove::before {
+  color: var(--vp-code-line-diff-remove-symbol-color);
 }
 .vp-doc .line.diff.add::before {
   content: "+";
@@ -2381,22 +2421,7 @@ details.VPSidebarItem[open] > summary .caret::before {
 .vp-doc .line.diff.remove::before {
   content: "-";
 }
-.vp-doc .line-numbers-mode .line {
-  padding-left: 58px;
-}
-.vp-doc .line-numbers-mode .line::after {
-  content: attr(data-line-number);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 42px;
-  color: var(--vp-c-text-3);
-  text-align: right;
-}
-.vp-doc .line-numbers-mode .line.diff.add::before,
-.vp-doc .line-numbers-mode .line.diff.remove::before {
-  left: 46px;
-}
+
 .edit-info {
   color: var(--vp-c-text-2);
   font-size: 14px;
@@ -2660,21 +2685,67 @@ html:not(.dark) .vp-doc .shiki span {
 .vp-doc [class*="language-"].has-lines code .line,
 .vp-doc div[class*="language-"].line-numbers-mode.has-lines code .line {
   position: relative;
-  display: block;
+  display: inline;
   margin: 0;
   padding: 0;
   width: auto;
-  min-height: calc(var(--vp-code-line-height) * 1em);
 }
 
 .vp-doc [class*="language-"].has-lines code .line.highlighted,
-.vp-doc [class*="language-"].has-lines code .line.has-focus,
 .vp-doc [class*="language-"].has-lines code .line.diff,
 .vp-doc [class*="language-"].has-lines code .line.warning,
 .vp-doc [class*="language-"].has-lines code .line.error {
+  display: inline-block;
   margin: 0 -24px;
   padding: 0 24px;
   width: calc(100% + 48px);
+}
+
+.vp-doc [class*="language-"] pre.has-focused-lines code .line:not(.has-focus) {
+  filter: blur(.095rem);
+  opacity: .7;
+  transition: filter .35s, opacity .35s;
+}
+
+.vp-doc [class*="language-"] pre.has-focused-lines:hover code .line:not(.has-focus) {
+  filter: blur(0);
+  opacity: 1;
+}
+
+.vp-doc div[class*="language-"].line-numbers-mode {
+  padding-left: 32px;
+}
+
+.vp-doc div[class*="language-"].line-numbers-mode .line-numbers-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  border-right: 1px solid var(--vp-code-block-divider-color);
+  padding-top: 20px;
+  width: 32px;
+  color: var(--vp-code-line-number-color);
+  text-align: center;
+  font-family: var(--vp-font-family-mono);
+  font-size: var(--vp-code-font-size);
+  line-height: var(--vp-code-line-height);
+  pointer-events: none;
+  user-select: none;
+  transition: border-color .5s, color .5s, background-color .5s;
+}
+
+.vp-doc div[class*="language-"][data-title].line-numbers-mode .line-numbers-wrapper {
+  top: 45px;
+}
+
+.vp-doc div[class*="language-"].line-numbers-mode .line-numbers-wrapper br {
+  user-select: none;
+}
+
+.vp-doc div[class*="language-"].line-numbers-mode .line-numbers-wrapper .line-number {
+  display: inline-block;
+  height: calc(var(--vp-code-line-height) * 1em);
 }
 /* VitePress-inspired authoring affordances */
 .VPBadge {

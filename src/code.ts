@@ -33,9 +33,16 @@ export async function highlightCodeBlocks(
         defaultColor: false,
       });
 
-      pre.outerHTML = highlighted;
+      pre.outerHTML = normalizeVitePressShikiColors(highlighted);
     }
   }
+}
+
+function normalizeVitePressShikiColors(html: string) {
+  return html
+    .replaceAll("--shiki-light:#D73A49", "--shiki-light:#c62739")
+    .replaceAll("--shiki-light:#6A737D", "--shiki-light:#62687b")
+    .replaceAll("--shiki-dark:#6A737D", "--shiki-dark:#818e99");
 }
 
 export function applyCodeLineAnnotations(page: ThemePage) {
@@ -75,7 +82,7 @@ export function applyCodeLineAnnotations(page: ThemePage) {
           metadata,
         );
       });
-      code.innerHTML = shikiLines.map((line) => line.outerHTML).join("");
+      code.innerHTML = shikiLines.map((line) => line.outerHTML).join("\n");
     } else {
       const original = code.innerHTML.replace(/\n$/, "");
       code.innerHTML = original.split("\n").map((line, index) => {
@@ -88,7 +95,7 @@ export function applyCodeLineAnnotations(page: ThemePage) {
         return `<span class="${classes}" data-line-number="${displayLineNumber}">${
           line || "\u200b"
         }</span>`;
-      }).join("");
+      }).join("\n");
     }
 
     wrapper.classList.add("has-lines");
@@ -99,12 +106,14 @@ export function applyCodeLineAnnotations(page: ThemePage) {
     if (lineNumbers) {
       wrapper.classList.add("line-numbers-mode");
       if (!wrapper.querySelector(".line-numbers-wrapper")) {
-        wrapper.insertAdjacentHTML(
-          "beforeend",
-          `<div class="line-numbers-wrapper" aria-hidden="true">${
-            lineNumbersHtml(lineCount, lineNumberStart)
-          }</div>`,
+        const lineNumbersWrapper = page.document.createElement("div");
+        lineNumbersWrapper.className = "line-numbers-wrapper";
+        lineNumbersWrapper.setAttribute("aria-hidden", "true");
+        lineNumbersWrapper.innerHTML = lineNumbersHtml(
+          lineCount,
+          lineNumberStart,
         );
+        wrapper.appendChild(lineNumbersWrapper);
       }
     }
 
@@ -191,18 +200,45 @@ function lineNumbersHtml(count: number, start: number) {
 }
 
 function initializeCodeGroups(page: ThemePage) {
+  let groupIndex = 0;
+
   for (
     const group of page.document.querySelectorAll<HTMLElement>(
       ".vp-code-group",
     )
   ) {
-    const blocks = [...group.children].filter((
+    const children = [...group.children];
+    if (
+      children.some((child) =>
+        child.classList.contains("tabs") || child.classList.contains("blocks")
+      )
+    ) {
+      continue;
+    }
+
+    const blocks = children.filter((
       child,
     ): child is HTMLElement =>
       child.matches("div[class^='language-'], div[class*=' language-']")
     );
 
+    if (blocks.length === 0) {
+      continue;
+    }
+
+    const tabs = page.document.createElement("div");
+    tabs.className = "tabs";
+    const blocksWrapper = page.document.createElement("div");
+    blocksWrapper.className = "blocks";
+    const groupName = `code-group-${groupIndex++}`;
+
     blocks.forEach((block, index) => {
+      const title = block.getAttribute("data-title");
+      const tabTitle = title || block.querySelector(".lang")?.textContent ||
+        `Example ${index + 1}`;
+      block.setAttribute("data-tab-title", tabTitle);
+      block.removeAttribute("data-title");
+
       const active = index === 0;
       block.classList.toggle("active", active);
       if (active) {
@@ -210,7 +246,28 @@ function initializeCodeGroups(page: ThemePage) {
       } else {
         block.setAttribute("hidden", "");
       }
+
+      const input = page.document.createElement("input");
+      const id = `${groupName}-${index}`;
+      input.setAttribute("type", "radio");
+      input.setAttribute("name", groupName);
+      input.setAttribute("id", id);
+      if (active) {
+        input.setAttribute("checked", "");
+      }
+
+      const label = page.document.createElement("label");
+      label.setAttribute("data-title", tabTitle);
+      label.setAttribute("for", id);
+      label.textContent = tabTitle;
+
+      tabs.appendChild(input);
+      tabs.appendChild(label);
+      blocksWrapper.appendChild(block);
     });
+
+    group.insertBefore(tabs, group.firstChild);
+    group.appendChild(blocksWrapper);
   }
 }
 
