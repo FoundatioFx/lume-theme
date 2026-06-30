@@ -35,6 +35,22 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "### Version: $version" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Cache Dependencies
+        shell: bash
+        run: |
+          lume_cli=$(deno eval "const config = JSON.parse(await Deno.readTextFile('docs/deno.json')); console.log(config.imports['lume/'] + 'cli.ts');")
+
+          for attempt in 1 2 3; do
+            if deno cache mod.ts tests/theme_test.ts && \
+              deno cache -c docs/deno.json "$lume_cli" docs/_config.ts; then
+              exit 0
+            fi
+            sleep $((attempt * 10))
+          done
+
+          deno cache mod.ts tests/theme_test.ts
+          deno cache -c docs/deno.json "$lume_cli" docs/_config.ts
+
       - name: Code Style
         run: deno task fmt:check
 
