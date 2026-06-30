@@ -40,7 +40,7 @@ export type { FoundatioThemeOptions } from "./types.ts";
 
 const packageVersion = "0.1.1";
 const defaultAssetBaseUrl = new URL(
-  `https://jsr.io/@foundatio/lume-theme/${packageVersion}/src/assets/`,
+  `https://jsr.io/@foundatiofx/lume-theme/${packageVersion}/src/assets/`,
 );
 
 export default function foundatio(

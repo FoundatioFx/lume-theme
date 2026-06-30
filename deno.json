@@ -1,5 +1,5 @@
 {
-  "name": "@foundatio/lume-theme",
+  "name": "@foundatiofx/lume-theme",
   "version": "0.1.1",
   "exports": "./mod.ts",
   "publish": {
