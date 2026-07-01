@@ -115,6 +115,28 @@ export default {
 ```
 
 ## Code Groups
+Code group tabs use the same filename-based icon convention as VitePress.
+
+::: code-group
+
+```js [config.js]
+export default {
+  title: "Foundatio Theme",
+  docsRoot: "guide",
+};
+```
+
+```ts [config.ts]
+import type { FoundatioThemeOptions } from "jsr:@foundatiofx/lume-theme";
+
+export default {
+  title: "Foundatio Theme",
+  docsRoot: "guide",
+} satisfies FoundatioThemeOptions;
+```
+
+:::
+
 ::: code-group
 
 ```ts:line-numbers [theme.ts]

@@ -117,6 +117,8 @@ Deno.test("dogfood docs render a dedicated demo page with broad markdown coverag
   assertStringIncludes(html, 'class="tabs"');
   assertStringIncludes(html, 'type="radio"');
   assertStringIncludes(html, 'class="blocks"');
+  assertStringIncludes(html, 'data-title="config.js"');
+  assertStringIncludes(html, 'data-title="config.ts"');
   assertStringIncludes(html, 'data-title="theme.ts"');
   assertStringIncludes(html, 'class="line diff add"');
   assertStringIncludes(html, 'class="line highlighted" data-line-number="5"');
@@ -144,6 +146,15 @@ Deno.test("theme emits bundled browser assets", async () => {
   assertStringIncludes(js, "mermaid.run");
 
   assertStringIncludes(css, ".VPNav");
+  assertStringIncludes(
+    css,
+    '.vp-code-group .tabs label[data-title$=".js"]::before',
+  );
+  assertStringIncludes(
+    css,
+    '.vp-code-group .tabs label[data-title$=".ts"]::before',
+  );
+  assertStringIncludes(css, "%23007acc");
   const normalizedCss = css.replaceAll("\r\n", "\n");
   assertStringIncludes(
     normalizedCss,
